@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-kwmP+NiOFzzF/xA2D2KSbTE4wKlqiFiFWFcHpojCL8U=' 'sha256-VRbubRfj3+NUqNcE7Wi10ll0kt35EzaqlAvysZu2uDo=' 'sha256-sHgqjCYJszR5rtecl/B2C2kDn62VcK//sPv+r4AgShU=' 'sha256-nkUh93XJCZNn/Njgiykcx86pr0ZYOoubvkpwbXB5fmU=' 'sha256-l8VMZH+qT3PjdMsIWoQdgZR9vc46JMsxk+84BpmdfnY=' 'sha256-jJYXr2nah8bfEs5ZZpaj32aiv8uUE2DIAoaDVY/U5YA='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' https://docs.google.com; form-action 'self' https://docs.google.com; object-src 'none'; base-uri 'self'">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="assets/icon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
+<title>Stuckit Golf: free swing tempo tracker for Apple Watch</title>
+<meta name="description" content="Stuckit Golf is a free swing tempo tracker for Apple Watch: your tempo on your wrist after every swing. Coming soon: your personal coach for your swing, with the one fix to make instead of a breakdown of your whole swing.">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://stuckit.golf/">
+<meta property="og:title" content="Stuckit Golf">
+<meta property="og:description" content="Free swing tempo tracker for Apple Watch. Your personal coach for your swing is coming soon.">
+<meta property="og:url" content="https://stuckit.golf/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://stuckit.golf/assets/swing-2-poster.jpg">
+<link rel="preload" as="image" href="assets/swing-2-poster.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"Organization","name":"Stuckit","alternateName":"Stuckit Golf","legalName":"Datum Intelligence LLC","url":"https://stuckit.golf/","logo":"https://stuckit.golf/assets/icon-512.png","email":"support@stuckit.golf","sameAs":["https://www.instagram.com/stuckit.golf/","https://www.tiktok.com/@stuckit.golf"]},
+ {"@type":"SoftwareApplication","name":"Stuckit","alternateName":"Stuckit Golf","applicationCategory":"SportsApplication","operatingSystem":"iOS 17, watchOS 10","description":"A free golf swing tempo tracker for Apple Watch: your backswing against your downswing, on every swing, on your wrist and your iPhone. Free, no account. Coming soon: your personal coach for your swing, which gives you the one fix to make instead of breaking down your whole swing.","url":"https://stuckit.golf/","publisher":{"@type":"Organization","name":"Datum Intelligence LLC"}}
+]}
+</script>
+<script>
+  (function () {
+    var root = document.documentElement;
+    try { if (localStorage.getItem('stuckit-theme') === 'dark') root.setAttribute('data-theme', 'dark'); } catch (e) {}
+    try { if (localStorage.getItem('stuckit-banner') === 'closed') root.classList.add('no-banner'); } catch (e) {}
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var seen = false;
+    try { seen = sessionStorage.getItem('stuckit-intro') === '1'; } catch (e) {}
+    root.classList.add('pre');
+    if (!seen) root.classList.add('intro');
+    function bail() {
+      window.__shown = true;
+      root.classList.remove('pre', 'intro');
+      var layer = document.getElementById('intro');
+      if (layer) layer.remove();
+    }
+    setTimeout(function () { if (!window.__introRunning) bail(); }, 2500);
+    setTimeout(function () { if (!window.__introDone) bail(); }, 8000);
+  })();
+</script>
+<style>
+
+:root {
+  --ground: #ffffff; --ink: #000000; --ink-2: rgba(0, 0, 0, .72);
+  --hair: rgba(0, 0, 0, .12); --line: rgba(0, 0, 0, .28);
+  --card: rgba(255, 255, 255, .42); --ink-small: rgba(0, 0, 0, .86); --bar: rgba(255, 255, 255, .6); --veil: rgba(255, 255, 255, .06); --veil-deep: rgba(255, 255, 255, .58);
+  --glass: rgba(255, 255, 255, .2);
+  --face: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --ground: #000000; --ink: #ffffff; --ink-2: rgba(255, 255, 255, .78);
+  --hair: rgba(255, 255, 255, .16); --line: rgba(255, 255, 255, .36);
+  --card: rgba(0, 0, 0, .36); --ink-small: rgba(255, 255, 255, .88); --bar: rgba(0, 0, 0, .55); --veil: rgba(0, 0, 0, .22); --veil-deep: rgba(0, 0, 0, .62);
+  --glass: rgba(0, 0, 0, .16);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; padding-inline: 20px; background: var(--ground); color: var(--ink);
+  font-family: var(--face); -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+a { color: inherit; }
+img, video { max-width: 100%; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 24px;
+  -webkit-backdrop-filter: blur(28px) saturate(1.3); backdrop-filter: blur(28px) saturate(1.3);
+}
+
+.film { position: fixed; inset: 0; z-index: -2; width: 100vw; height: 100vh; height: 100lvh; object-fit: cover; background: #000; }
+
+@media (min-width: 901px) {
+  .film {
+    inset: auto; left: 0; top: calc(100px + env(safe-area-inset-top));
+    height: calc(100vh - 100px - env(safe-area-inset-top)); height: calc(100lvh - 100px - env(safe-area-inset-top));
+    object-position: 0 0;
+  }
+  .no-banner .film {
+    top: calc(64px + env(safe-area-inset-top));
+    height: calc(100vh - 64px - env(safe-area-inset-top)); height: calc(100lvh - 64px - env(safe-area-inset-top));
+  }
+}
+
+.veil { position: fixed; inset: 0; z-index: -1; background: var(--veil); pointer-events: none; transition: background-color .6s ease; }
+.deep .veil { background: var(--veil-deep); }
+
+.intro-layer { display: none; }
+.intro .intro-layer { display: grid; place-items: center; position: fixed; inset: 0; z-index: 30; cursor: pointer; }
+.intro-bg { position: absolute; inset: 0; background: var(--ground); will-change: opacity; }
+.intro-logo { position: relative; width: min(72vw, 460px); height: auto; color: var(--ink); overflow: visible; transform-origin: 0 0; will-change: transform; }
+.intro .bar .lockup { visibility: hidden; }
+
+.bar {
+  position: fixed; inset: 0 0 auto 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  height: calc(64px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) clamp(16px, 3vw, 40px) 0;
+  background: var(--bar); -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
+  border-bottom: 1px solid var(--hair);
+}
+.brand { display: flex; align-items: center; min-height: 44px; color: var(--ink); }
+.lockup { height: 40px; width: auto; display: block; overflow: visible; }
+.social { display: flex; align-items: center; gap: 2px; }
+.social a { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; color: var(--ink); }
+.social svg { width: 22px; height: 22px; display: block; }
+.theme { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--ink); cursor: pointer; }
+.theme svg { width: 21px; height: 21px; display: block; }
+
+.banner {
+  position: fixed; inset: calc(64px + env(safe-area-inset-top)) 0 auto 0; z-index: 9;
+  display: flex; align-items: center; justify-content: center; height: 36px; padding: 0 48px;
+  font-size: 14px; letter-spacing: .02em; text-align: center;
+  color: var(--ground); background: var(--ink);
+}
+.banner a { color: inherit; text-decoration: none; }
+.banner strong { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.banner-x {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 36px; height: 36px; padding: 0;
+  color: inherit; background: none; border: 0; cursor: pointer;
+}
+.banner-x svg { width: 18px; height: 18px; }
+.no-banner .banner { display: none; }
+.no-banner .hero { padding-top: calc(64px + env(safe-area-inset-top) + clamp(24px, 5vh, 56px)); }
+.no-banner #beta { scroll-margin-top: calc(76px + env(safe-area-inset-top)); }
+.intro .banner { visibility: hidden; }
+
+main { padding-top: 0; }
+.hero {
+  max-width: 1200px; margin: 0 auto; min-height: 100svh;
+  display: grid; align-items: center;
+  padding-block: calc(100px + env(safe-area-inset-top) + clamp(24px, 5vh, 56px)) clamp(48px, 10vh, 112px);
+}
+#beta { scroll-margin-top: calc(110px + env(safe-area-inset-top)); }
+.panel { max-width: 600px; display: grid; gap: 22px; padding: clamp(22px, 3vw, 40px); }
+h1 { margin: 0; font-size: clamp(34px, 3vw + 16px, 64px); line-height: 1.1; font-weight: 300; letter-spacing: -.025em; text-wrap: balance; }
+.lede { margin: 0; max-width: 34em; font-size: clamp(17px, .5vw + 14px, 21px); line-height: 1.5; color: var(--ink-2); }
+.waitlist { display: grid; gap: 12px; padding-top: 20px; border-top: 1px solid var(--hair); }
+.waitlist h2 { margin: 0; font-size: 22px; font-weight: 500; letter-spacing: -.01em; }
+.small { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-small); }
+.footnote { margin-top: 10px; }
+.field { display: flex; gap: 8px; }
+.field input {
+  flex: 1; min-width: 0; height: 56px; padding: 0 18px;
+  font: inherit; font-size: 17px; color: var(--ink); background: var(--glass);
+  border: 1px solid var(--line); border-radius: 12px;
+}
+.field input::placeholder { color: var(--ink-2); opacity: .75; }
+.field button {
+  height: 56px; padding: 0 28px; border: 0; border-radius: 12px; cursor: pointer;
+  font: inherit; font-size: 16px; font-weight: 600; color: var(--ground); background: var(--ink); white-space: nowrap;
+}
+.field button:disabled { opacity: .5; cursor: default; }
+.status { margin: 0; font-size: 15px; line-height: 1.4; font-weight: 500; }
+.status:empty { display: none; }
+.questions { margin: 0; padding-top: 18px; border-top: 1px solid var(--hair); font-size: 15px; line-height: 1.5; color: var(--ink-small); }
+.questions a { color: var(--ink); }
+
+.demo { max-width: 1200px; margin: 0 auto clamp(20px, 3vh, 32px); }
+.demo summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: clamp(22px, 3vw, 40px); }
+.demo summary::-webkit-details-marker { display: none; }
+.demo summary h2 { margin: 0; font-size: clamp(24px, 1.4vw + 14px, 36px); font-weight: 300; letter-spacing: -.02em; }
+.demo .hint { display: block; margin-top: 4px; font-size: 15px; color: var(--ink-2); }
+.demo .chev { width: 24px; height: 24px; flex: none; transition: transform .25s ease; }
+.demo details[open] .chev { transform: rotate(180deg); }
+.demo .show { padding: 0 clamp(22px, 3vw, 40px) clamp(22px, 3vw, 40px); }
+.track { overflow: hidden; touch-action: pan-y; outline: none; transition: height .3s ease; }
+.rail { display: flex; align-items: flex-start; transition: transform .3s cubic-bezier(.22, .8, .24, 1); will-change: transform; }
+.rail.dragging { transition: none; user-select: none; -webkit-user-select: none; }
+.rail img { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; }
+.slide { flex: 0 0 100%; display: grid; grid-template-columns: minmax(0, 290px) minmax(0, 1fr); gap: clamp(24px, 5vw, 72px); align-items: center; padding: 4px 2px; }
+.slide.wide { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.slide img { display: block; width: 100%; height: auto; border-radius: 28px; border: 1px solid var(--line); background: #000; }
+.shot { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: 28px; }
+.shot:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.slide img.icon { width: min(100%, 200px); justify-self: center; border-radius: 22%; }
+.say .needs { margin-top: 14px; font-size: 14px; letter-spacing: .02em; }
+.say .step { font-size: 14px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.say h3 { margin: 8px 0 14px; font-size: clamp(28px, 1.8vw + 16px, 44px); font-weight: 400; letter-spacing: -.02em; line-height: 1.1; }
+.say p, .ticks { margin: 0; max-width: 30em; font-size: clamp(17px, .4vw + 14px, 19px); line-height: 1.55; color: var(--ink-2); }
+.ticks { padding-left: 1.2em; display: grid; gap: 6px; }
+.ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.ways li { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--line); border-radius: 16px; }
+.ways svg { width: 26px; height: 26px; flex: none; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ways strong { display: block; font-size: 17px; font-weight: 600; }
+.ways span { display: block; margin-top: 2px; font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
+.ways em { display: inline-block; white-space: nowrap; margin-left: 6px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; font-style: normal; font-weight: 600; letter-spacing: .04em; vertical-align: 2px; }
+.ways .soon strong, .ways .soon span { color: var(--ink-2); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: clamp(18px, 3vw, 28px); }
+.arrow { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; color: var(--ink); background: none; border: 1px solid var(--line); border-radius: 50%; cursor: pointer; }
+.arrow svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.arrow:disabled { opacity: .3; cursor: default; }
+.dots { display: flex; gap: 4px; }
+.dots button { width: 28px; height: 28px; padding: 0; background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
+.dots button::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: background .2s, transform .2s; }
+.dots button[aria-current="true"]::after { background: var(--ink); transform: scale(1.25); }
+
+.viewer { padding: 0; border: 0; margin: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; background: transparent; color: #fff; overflow: auto; }
+.viewer[open] { display: grid; place-items: center; }
+.viewer::backdrop { background: rgba(0, 0, 0, .86); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.viewer img { display: block; width: auto; height: auto; max-width: calc(100vw - 32px); max-height: calc(100dvh - 120px); border-radius: 28px; border: 1px solid rgba(255, 255, 255, .22); }
+.viewer-x { position: fixed; top: calc(16px + env(safe-area-inset-top)); left: calc(16px + env(safe-area-inset-left)); display: grid; place-items: center; width: 48px; height: 48px; padding: 0; color: #fff; background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .4); border-radius: 50%; cursor: pointer; }
+.viewer-x svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+html.viewing { overflow: hidden; }
+
+footer {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px 24px; flex-wrap: wrap;
+  max-width: 1200px; margin: 0 auto calc(20px + env(safe-area-inset-bottom)); padding: 6px clamp(20px, 2.6vw, 30px);
+  font-size: 14px; color: var(--ink-2);
+}
+footer nav { display: flex; gap: 22px; flex-wrap: wrap; }
+footer a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+footer a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 900px) {
+  
+  .hero { align-items: end; padding-top: calc(100px + env(safe-area-inset-top) + 32svh); padding-bottom: 24px; }
+  .no-banner .hero { padding-top: calc(64px + env(safe-area-inset-top) + 32svh); }
+  .panel { max-width: none; }
+  
+  .film { object-position: 64% 50%; }
+}
+@media (max-width: 520px) {
+  .lockup { height: 30px; }
+  .social a, .theme { width: 40px; }
+  .field { flex-direction: column; }
+  .field input { flex: none; }
+  .banner { padding: 0 40px; font-size: 13px; letter-spacing: 0; white-space: nowrap; }
+  .banner-x { right: 2px; }
+  .slide, .slide.wide { grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; align-content: start; }
+  .slide .say { order: -1; }
+  .slide img { width: 100%; border-radius: 22px; }
+  .shot { width: 232px; margin: 0 auto; border-radius: 22px; }
+  .slide img.icon { width: 88px; margin: 4px 0 0; justify-self: start; order: -2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .demo .chev { transition: none; }
+  .track, .rail { transition: none; }
+  .veil { transition: none; }
+  .dots button::after { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <path id="l1" d="M32.04 160.60Q38.47 160.60 40.74 161.39Q43.02 162.18 44.40 162.21Q45.79 162.23 47.07 162.97Q48.36 163.72 50.24 164.16Q52.12 164.61 54.51 166.21Q56.91 167.82 56.07 170.59Q55.23 173.36 54.84 174.00Q54.44 174.64 52.09 173.19Q49.74 171.73 47.86 171.28Q45.98 170.84 44.70 170.09Q43.41 169.35 40.45 168.93Q37.48 168.51 36.79 168.12Q36.10 167.72 31.25 167.72Q26.40 167.72 25.71 168.12Q25.02 168.51 23.64 168.54Q22.25 168.56 18.99 170.19Q15.72 171.83 13.87 173.68Q12.02 175.53 10.75 178.90Q9.49 182.26 10.36 185.72Q11.22 189.18 12.68 190.64Q14.14 192.10 17.80 194.13Q21.46 196.15 31.25 198.58Q41.04 201.00 46.68 203.42Q52.31 205.84 54.56 207.70Q56.81 209.55 58.45 212.42Q60.08 215.29 60.50 216.97Q60.92 218.65 60.92 221.52Q60.92 224.39 60.52 225.08Q60.13 225.77 60.10 227.16Q60.08 228.54 58.84 231.01Q57.61 233.48 56.24 235.27Q54.88 237.05 53.20 238.31Q51.52 239.57 47.86 241.20Q44.21 242.83 40.84 243.25Q37.48 243.67 36.79 244.07Q36.10 244.46 33.72 244.46Q31.35 244.46 26.90 244.46Q22.45 244.46 21.76 244.07Q21.06 243.67 19.28 243.65Q17.50 243.62 13.94 242.43Q10.38 241.25 7.91 240.01Q5.44 238.78 2.72 236.72Q0.00 234.67 0.02 233.68Q0.05 232.69 1.46 230.27Q2.87 227.85 6.13 230.15Q9.39 232.45 14.64 234.47Q19.88 236.50 21.26 236.53Q22.65 236.55 23.34 236.95Q24.03 237.34 29.67 237.34Q35.31 237.34 36.00 236.95Q36.69 236.55 38.47 236.53Q40.25 236.50 42.33 235.66Q44.40 234.82 47.37 232.27Q50.34 229.73 51.25 227.95Q52.17 226.17 52.17 222.71Q52.17 219.24 51.25 217.46Q50.34 215.68 47.77 213.53Q45.19 211.38 43.51 210.54Q41.83 209.70 33.62 207.67Q25.42 205.65 19.48 203.67Q13.55 201.69 11.37 200.38Q9.20 199.07 6.72 196.60Q4.25 194.13 3.34 192.35Q2.42 190.57 2.00 189.28Q1.58 187.99 1.58 183.54Q1.58 179.09 2.00 177.41Q2.42 175.73 4.13 172.77Q5.83 169.80 7.22 168.44Q8.60 167.08 12.26 165.05Q15.92 163.02 18.39 162.21Q20.87 161.39 22.65 161.37Q24.43 161.34 24.95 160.97Q25.46 160.60 25.54 160.60Q25.61 160.60 32.04 160.60Z"/>
+    <path id="l2" d="M132.64 161.47Q166.09 161.54 165.97 165.03Q165.84 168.51 151.90 168.51Q137.95 168.51 137.48 168.86Q137.02 169.21 136.94 192.15Q136.87 215.09 136.87 229.23Q136.87 243.37 132.54 243.45Q128.21 243.52 128.16 206.46Q128.12 169.40 127.60 168.96Q127.08 168.51 113.13 168.51Q99.19 168.51 99.11 164.95Q99.04 161.39 99.11 161.39Q99.19 161.39 132.64 161.47Z"/>
+    <path id="l3" d="M215.34 161.54Q219.15 161.69 219.15 185.92Q219.15 210.15 219.54 210.84Q219.94 211.53 219.94 214.00Q219.94 216.48 220.33 217.17Q220.73 217.86 220.73 219.15Q220.73 220.43 221.54 222.51Q222.36 224.58 224.07 227.16Q225.77 229.73 227.95 231.48Q230.12 233.24 233.78 234.87Q237.44 236.50 240.01 236.53Q242.58 236.55 243.28 236.95Q243.97 237.34 245.55 236.95Q247.13 236.55 249.60 236.55Q252.08 236.55 255.44 235.29Q258.80 234.03 261.77 231.48Q264.74 228.94 266.84 225.18Q268.94 221.42 269.36 218.06Q269.78 214.69 270.17 214.00Q270.57 213.31 270.57 187.50Q270.57 161.69 274.45 161.57Q278.33 161.44 278.41 163.74Q278.48 166.04 278.48 191.65Q278.48 217.27 277.67 220.53Q276.85 223.79 275.22 227.45Q273.59 231.11 270.64 234.47Q267.70 237.84 263.15 240.33Q258.60 242.83 255.34 243.65Q252.08 244.46 244.86 244.46Q237.64 244.46 234.37 243.65Q231.11 242.83 226.56 240.33Q222.01 237.84 219.07 234.47Q216.13 231.11 214.10 226.27Q212.07 221.42 212.05 220.04Q212.03 218.65 211.63 217.96Q211.23 217.27 211.31 189.33Q211.38 161.39 211.46 161.39Q211.53 161.39 215.34 161.54Z"/>
+    <path id="l4" d="M374.60 160.60Q380.24 160.60 380.93 161.00Q381.63 161.39 384.99 161.81Q388.35 162.23 393.99 165.05Q399.62 167.87 401.80 169.63Q403.98 171.38 404.05 172.37Q404.12 173.36 401.78 175.58Q399.43 177.81 395.97 175.21Q392.50 172.62 387.16 170.56Q381.82 168.51 375.00 168.51Q368.18 168.51 364.12 169.72Q360.07 170.94 358.39 171.78Q356.71 172.62 354.23 174.27Q351.76 175.93 349.29 178.40Q346.82 180.87 343.92 186.21Q341.03 191.55 340.61 194.92Q340.19 198.28 339.79 198.97Q339.40 199.66 339.79 204.91Q340.19 210.15 341.40 213.81Q342.61 217.46 344.64 220.73Q346.67 223.99 349.21 226.56Q351.76 229.13 354.23 230.79Q356.71 232.45 359.18 233.68Q361.65 234.92 364.91 235.73Q368.18 236.55 370.65 236.55Q373.12 236.55 373.81 236.95Q374.51 237.34 376.58 237.34Q378.66 237.34 379.94 236.95Q381.23 236.55 384.79 235.73Q388.35 234.92 390.03 234.08Q391.71 233.24 395.77 230.30Q399.82 227.35 401.97 229.53Q404.12 231.71 404.17 232.50Q404.22 233.29 403.21 234.38Q402.19 235.46 398.44 237.96Q394.68 240.46 388.25 242.46Q381.82 244.46 374.60 244.46Q367.38 244.46 366.69 244.07Q366.00 243.67 364.62 243.65Q363.23 243.62 359.67 242.43Q356.11 241.25 353.64 240.01Q351.17 238.78 348.69 237.12Q346.22 235.46 342.96 232.20Q339.69 228.94 336.80 223.60Q333.91 218.26 332.70 213.81Q331.49 209.36 331.49 202.53Q331.49 195.71 331.88 195.02Q332.28 194.32 332.30 192.94Q332.33 191.55 334.75 185.92Q337.17 180.28 339.23 177.41Q341.28 174.55 342.96 172.86Q344.64 171.18 347.51 169.13Q350.38 167.08 354.43 165.05Q358.48 163.02 361.35 162.21Q364.22 161.39 365.90 161.39Q367.58 161.39 368.20 161.00Q368.82 160.60 368.89 160.60Q368.97 160.60 374.60 160.60Z"/>
+    <path id="l5" d="M461.38 161.54Q465.19 161.69 465.19 185.52Q465.19 209.36 465.54 209.80Q465.88 210.25 489.91 185.97Q513.94 161.69 518.74 161.57Q523.54 161.44 522.70 162.75Q521.86 164.06 505.39 181.07Q488.92 198.08 488.95 198.67Q488.97 199.27 489.89 200.65Q490.80 202.04 504.45 218.06Q518.10 234.08 522.10 238.73Q526.11 243.37 520.82 243.37Q515.53 243.37 509.99 236.65Q504.45 229.93 496.44 221.12Q488.43 212.32 488.13 211.63Q487.84 210.94 484.97 208.32Q482.10 205.70 473.67 214.05Q465.24 222.41 465.19 232.97Q465.14 243.52 461.23 243.52Q457.33 243.52 457.38 202.46Q457.43 161.39 457.50 161.39Q457.57 161.39 461.38 161.54Z"/>
+    <path id="l6" d="M578.47 161.54Q582.28 161.69 582.28 202.53Q582.28 243.37 581.93 243.52Q581.59 243.67 577.98 243.52Q574.37 243.37 574.44 202.38Q574.52 161.39 574.59 161.39Q574.66 161.39 578.47 161.54Z"/>
+    <path id="l7" d="M663.89 161.47Q696.94 161.54 696.82 165.03Q696.70 168.51 682.75 168.51Q668.81 168.51 668.34 168.86Q667.87 169.21 667.80 192.15Q667.72 215.09 667.72 229.23Q667.72 243.37 663.39 243.45Q659.07 243.52 659.02 206.46Q658.97 169.40 658.45 168.96Q657.93 168.51 644.38 168.51Q630.83 168.51 630.76 164.95Q630.69 161.39 630.76 161.39Q630.83 161.39 663.89 161.47Z"/>
+    <path id="ball" d="M909.81 188.29Q911.10 188.29 912.08 188.76Q913.07 189.23 914.61 191.28Q916.14 193.33 916.11 194.72Q916.09 196.10 915.25 197.78Q914.41 199.47 912.36 200.36Q910.31 201.25 909.81 201.49Q909.32 201.74 907.93 201.27Q906.55 200.80 905.01 198.75Q903.48 196.70 903.48 194.62Q903.48 192.54 903.95 191.55Q904.42 190.57 906.40 189.43Q908.38 188.29 908.45 188.29Q908.52 188.29 909.81 188.29Z"/>
+    <path id="green" d="M922.47 135.28Q930.87 135.28 931.42 135.83Q931.96 136.37 931.94 137.36Q931.91 138.35 931.49 138.77Q931.07 139.19 924.94 139.22Q918.81 139.24 918.12 139.64Q917.43 140.03 914.95 140.03Q912.48 140.03 911.79 140.43Q911.10 140.82 909.41 140.82Q907.73 140.82 907.04 141.22Q906.35 141.61 903.38 142.03Q900.42 142.45 892.11 145.62Q883.80 148.78 878.96 151.11Q874.11 153.43 866.50 155.83Q858.88 158.23 857.20 158.23Q855.52 158.23 852.45 159.02Q849.39 159.81 846.52 159.81Q843.65 159.81 842.96 160.21Q842.27 160.60 824.37 160.60Q806.47 160.60 805.78 161.00Q805.08 161.39 801.03 161.39Q796.97 161.39 796.28 161.79Q795.59 162.18 793.91 162.18Q792.23 162.18 791.53 162.58Q790.84 162.97 787.18 163.37Q783.52 163.77 778.28 165.37Q773.04 166.98 769.38 168.61Q765.72 170.24 761.67 173.09Q757.62 175.93 755.93 177.61Q754.25 179.29 752.60 181.76Q750.94 184.24 749.68 187.60Q748.42 190.96 748.42 193.83Q748.42 196.70 749.23 199.57Q750.05 202.43 750.89 203.72Q751.73 205.00 754.77 208.04Q757.81 211.09 761.87 213.11Q765.92 215.14 768.39 215.96Q770.87 216.77 772.15 216.77Q773.44 216.77 774.13 217.17Q774.82 217.56 777.29 217.56Q779.77 217.56 780.46 217.96Q781.15 218.35 798.26 217.96Q815.37 217.56 816.06 217.96Q816.75 218.35 820.02 218.35Q823.28 218.35 823.97 218.75Q824.66 219.15 825.95 219.15Q827.24 219.15 830.50 219.96Q833.76 220.78 839.30 222.76Q844.84 224.73 846.42 225.82Q848.00 226.91 848.89 227.06Q849.78 227.21 863.92 236.55Q878.07 245.90 882.12 247.92Q886.17 249.95 891.81 251.95Q897.45 253.96 898.73 253.96Q900.02 253.96 902.69 254.75Q905.36 255.54 907.44 255.54Q909.51 255.54 910.21 255.93Q910.90 256.33 919.30 256.33Q927.71 256.33 928.40 255.93Q929.09 255.54 931.17 255.54Q933.25 255.54 933.94 255.14Q934.63 254.75 937.90 254.35Q941.16 253.96 944.82 252.74Q948.48 251.53 954.11 249.11Q959.75 246.69 965.39 243.05Q971.02 239.42 975.87 234.97Q980.72 230.52 984.35 225.67Q987.98 220.83 990.01 216.77Q992.04 212.72 993.23 209.16Q994.41 205.60 994.44 203.82Q994.46 202.04 994.86 201.34Q995.25 200.65 995.25 194.22Q995.25 187.80 993.25 181.37Q991.25 174.94 987.56 169.21Q983.88 163.47 980.22 159.81Q976.56 156.15 969.74 151.73Q962.92 147.30 958.17 145.62Q953.42 143.94 951.74 143.49Q950.06 143.05 949.34 142.28Q948.63 141.52 948.75 140.23Q948.87 138.94 950.16 138.70Q951.44 138.45 956.29 140.06Q961.14 141.66 965.98 144.09Q970.83 146.51 974.88 149.35Q978.94 152.19 982.99 156.25Q987.05 160.31 989.89 164.36Q992.73 168.41 994.36 171.68Q995.99 174.94 997.18 178.50Q998.37 182.06 998.39 183.45Q998.42 184.83 998.81 185.52Q999.21 186.21 999.21 188.69Q999.21 191.16 999.60 191.85Q1000.00 192.54 999.60 197.39Q999.21 202.24 997.60 208.27Q995.99 214.30 993.57 219.15Q991.15 223.99 989.57 226.36Q987.98 228.74 983.06 234.08Q978.14 239.42 973.30 243.05Q968.45 246.69 961.63 250.30Q954.81 253.91 951.64 255.09Q948.48 256.28 943.63 257.49Q938.79 258.70 937.50 258.70Q936.21 258.70 935.52 259.10Q934.83 259.49 933.54 259.49Q932.26 259.49 931.57 259.89Q930.87 260.28 926.42 260.28Q921.97 260.28 921.28 260.68Q920.59 261.08 918.91 261.08Q917.23 261.08 916.53 260.68Q915.84 260.28 911.39 260.28Q906.94 260.28 906.25 259.89Q905.56 259.49 902.29 259.10Q899.03 258.70 893.39 257.10Q887.76 255.49 881.72 252.67Q875.69 249.85 862.34 240.90Q848.99 231.95 844.94 229.92Q840.88 227.90 836.53 226.32Q832.18 224.73 829.21 224.31Q826.25 223.89 825.55 223.50Q824.86 223.10 822.39 223.10Q819.92 223.10 819.22 222.71Q818.53 222.31 797.47 222.31Q776.40 222.31 775.71 221.91Q775.02 221.52 773.24 221.49Q771.46 221.47 766.71 219.89Q761.97 218.31 758.21 216.20Q754.45 214.10 751.11 210.74Q747.77 207.38 746.12 203.22Q744.46 199.07 744.46 194.22Q744.46 189.38 746.12 184.83Q747.77 180.28 751.90 175.73Q756.03 171.18 757.71 169.92Q759.39 168.66 764.24 166.24Q769.09 163.82 772.25 162.63Q775.42 161.44 780.26 160.23Q785.11 159.02 786.39 159.02Q787.68 159.02 788.37 158.62Q789.06 158.23 794.30 157.83Q799.55 157.44 800.24 157.04Q800.93 156.65 819.62 156.65Q838.31 156.65 839.00 156.25Q839.69 155.85 845.73 155.46Q851.76 155.06 860.96 152.67Q870.15 150.27 879.75 145.97Q889.34 141.66 895.27 139.69Q901.21 137.71 904.17 137.29Q907.14 136.87 907.83 136.47Q908.52 136.08 910.60 136.08Q912.68 136.08 913.30 135.68Q913.91 135.28 913.99 135.28Q914.06 135.28 922.47 135.28Z"/>
+    <path id="flag" d="M940.17 196.97Q939.18 196.94 938.74 196.43Q938.29 195.91 938.29 164.66Q938.29 133.41 938.29 96.12Q938.29 58.84 937.65 57.65Q937.01 56.47 934.83 55.55Q932.65 54.64 930.87 54.61Q929.09 54.59 928.40 54.19Q927.71 53.80 921.28 53.80Q914.85 53.80 914.16 54.19Q913.47 54.59 911.79 54.59Q910.11 54.59 905.26 55.80Q900.42 57.01 894.68 58.96Q888.94 60.92 885.28 61.31Q881.63 61.71 880.93 62.10Q880.24 62.50 876.58 62.50Q872.92 62.50 872.23 62.90Q871.54 63.29 870.75 62.90Q869.96 62.50 866.69 62.50Q863.43 62.50 862.74 62.10Q862.05 61.71 860.66 61.68Q859.28 61.66 856.90 60.87Q854.53 60.08 852.50 58.77Q850.47 57.46 850.47 32.04Q850.47 6.63 850.72 6.23Q850.97 5.83 852.65 5.71Q854.33 5.59 855.62 6.33Q856.90 7.07 860.96 8.28Q865.01 9.49 871.44 9.49Q877.87 9.49 878.56 9.10Q879.25 8.70 880.93 8.70Q882.62 8.70 885.88 7.89Q889.14 7.07 890.82 6.33Q892.50 5.59 893.59 5.54Q894.68 5.49 896.36 4.75Q898.04 4.01 902.89 2.79Q907.73 1.58 911.79 1.19Q915.84 0.79 916.46 0.40Q917.08 0.00 917.15 0.00Q917.23 0.00 921.68 0.00Q926.13 0.00 926.82 0.40Q927.51 0.79 929.19 0.79Q930.87 0.79 934.93 2.00Q938.98 3.21 940.62 4.52Q942.25 5.83 942.25 100.87Q942.25 195.91 941.70 196.45Q941.16 196.99 941.16 196.99Q941.16 196.99 940.17 196.97Z"/>
+    <g id="lockup">
+      <g fill="currentColor"><use href="#l1"/><use href="#l2"/><use href="#l3"/><use href="#l4"/><use href="#l5"/><use href="#l6"/><use href="#l7"/><use href="#ball"/></g>
+      <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><use href="#green"/><use href="#flag"/></g>
+    </g>
+  </defs>
+</svg>
+
+<div class="intro-layer" id="intro" aria-hidden="true">
+  <div class="intro-bg"></div>
+  <svg class="intro-logo" viewBox="0 0 1000 261.1">
+    <g fill="currentColor">
+      <use href="#l1" class="i-ltr"/><use href="#l2" class="i-ltr"/><use href="#l3" class="i-ltr"/><use href="#l4" class="i-ltr"/><use href="#l5" class="i-ltr"/><use href="#l6" class="i-ltr"/><use href="#l7" class="i-ltr"/>
+      <use href="#ball" class="i-ball"/>
+    </g>
+    <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <use href="#green" class="i-green"/><use href="#flag" class="i-flag"/>
+    </g>
+  </svg>
+</div>
+
+<header class="bar">
+  <a class="brand" href="#top" aria-label="Stuckit, back to top">
+    <svg class="lockup" id="brand-logo" viewBox="0 0 1000 261.1" role="img" aria-label="Stuckit"><use href="#lockup"/></svg>
+  </a>
+  
+  <nav class="social" aria-label="Stuckit on social media">
+    <a href="https://www.instagram.com/stuckit.golf/" target="_blank" rel="noopener" aria-label="Stuckit on Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".9" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a href="https://www.tiktok.com/@stuckit.golf" target="_blank" rel="noopener" aria-label="Stuckit on TikTok">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z"/></svg>
+    </a>
+    <button class="theme" id="theme" type="button" aria-label="Switch to light mode">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 4.5a7.5 7.5 0 0 1 0 15z" fill="currentColor"/></svg>
+    </button>
+  </nav>
+</header>
+
+<aside class="banner" id="banner" aria-label="Announcement">
+  <a href="#beta">Coming soon to the App Store <span aria-hidden="true">·</span> <strong>Join the waitlist</strong></a>
+  <button class="banner-x" id="banner-x" type="button" aria-label="Close banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+  </button>
+</aside>
+
+<video class="film" id="film" muted loop playsinline preload="auto" poster="assets/swing-2-poster.jpg" aria-hidden="true">
+  <source src="assets/swing-2-phone.mp4" type="video/mp4" media="(max-width: 900px)">
+  <source src="assets/swing-2.mp4" type="video/mp4">
+</video>
+<div class="veil" aria-hidden="true"></div>
+
+<main id="top">
+  <section class="hero">
+
+    <div class="panel card" id="beta">
+      <h1>Your swing tempo, on your wrist.</h1>
+      <p class="lede">Stuckit is a free tempo tracker for your Apple Watch. It times your backswing against your downswing on every swing, and shows it on your wrist and your iPhone. Free, with no account. Coming soon to the App Store.</p>
+
+      <div class="waitlist">
+        <h2>Join the waitlist</h2>
+        <p class="small">Free to join. Be the first to know when Stuckit launches.</p>
+        <form id="beta-form" novalidate>
+          <div class="field">
+            <label for="email" class="sr">Email</label>
+            <input id="email" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="you@example.com">
+            <button type="submit">Join</button>
+          </div>
+          
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+        </form>
+        <p class="status" id="beta-status" role="status" aria-live="polite"></p>
+        <p class="small">For golfers 13 and older. Launch news only, never shared. <a href="privacy.html#beta">Privacy</a></p>
+      </div>
+
+      <p class="questions">Questions? <a href="mailto:support@stuckit.golf">support@stuckit.golf</a><br>
+        Coach? Bring Stuckit to your students: <a href="mailto:team@stuckit.golf?subject=Stuckit%20for%20coaches">team@stuckit.golf</a></p>
+    </div>
+  </section>
+
+  <section class="demo card" id="demo">
+    <details id="demo-box" open>
+      <summary>
+        <div><h2>See how it works</h2><span class="hint">Free on your Apple Watch</span></div>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="show" aria-roledescription="carousel" aria-label="How Stuckit works">
+        <div class="track" id="track" tabindex="0">
+          <div class="rail" id="rail">
+          <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 6">
+            <img class="icon" src="assets/icon-512.png" alt="The Stuckit app icon" width="512" height="512" loading="lazy">
+            <div class="say">
+              <span class="step">What is Stuckit?</span>
+              <h3>Free swing tempo on your Apple Watch.</h3>
+              <p>Your watch times your backswing against your downswing on every swing. That's your tempo, on your wrist between shots and on your iPhone after. Free, with no account.</p>
+              <p class="needs">Apple&nbsp;Watch, watchOS&nbsp;10+ · iPhone, iOS&nbsp;17+ · free</p>
+            </div>
+          </div>
+          <div class="slide wide" role="group" aria-roledescription="slide" aria-label="2 of 6">
+            <ul class="ways">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="6" width="10" height="12" rx="3"/><path d="M9 6l1-3h4l1 3M9 18l1 3h4l1-3"/></svg><div><strong>On your lead wrist</strong><span>Your left wrist if you're right-handed. Snug, with the crown toward your hand.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/></svg><div><strong>Start on your iPhone</strong><span>Tap Start tempo session and pick your club.</span></div></li>
+            </ul>
+            <div class="say">
+              <span class="step">Step 1</span>
+              <h3>Wear your watch, start a session.</h3>
+              <p>Any club, at the range, in a net or in your garden.</p>
+            </div>
+          </div>
+          <div class="slide wide" role="group" aria-roledescription="slide" aria-label="3 of 6">
+            <ul class="ways">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="12" r="7"/></svg><div><strong>Tap once</strong><span>Tap your watch when you step up to the ball.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7"/><path d="M12 13V9M10 3h4M12 3v3"/></svg><div><strong>No countdown</strong><span>Take your time. It waits for your swing.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-4 4-5.5 7-5.5s5.5 1.5 7 5.5"/></svg><div><strong>Your routine</strong><span>Waggle and set up the way you always do.</span></div></li>
+            </ul>
+            <div class="say">
+              <span class="step">Step 2</span>
+              <h3>Tap once, swing when ready.</h3>
+              <p>Then tap again for the next one.</p>
+            </div>
+          </div>
+          <div class="slide wide" role="group" aria-roledescription="slide" aria-label="4 of 6">
+            <ul class="ways">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="6" width="10" height="12" rx="3"/><path d="M9 6l1-3h4l1 3M9 18l1 3h4l1-3"/></svg><div><strong>On your wrist</strong><span>Right after the swing, between shots.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/></svg><div><strong>On your iPhone</strong><span>Every swing as a ratio, like 2.4:1: your backswing against your downswing.</span></div></li>
+            </ul>
+            <div class="say">
+              <span class="step">Step 3</span>
+              <h3>See your tempo.</h3>
+              <p>No targets and no grades. It's your own tempo, swing by swing.</p>
+            </div>
+          </div>
+          <div class="slide wide" role="group" aria-roledescription="slide" aria-label="5 of 6">
+            <ul class="ways">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><div><strong>Every session</strong><span>Every swing, by date and club.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><div><strong>Stays on your phone</strong><span>Your swings stay on your iPhone. No account.</span></div></li>
+            </ul>
+            <div class="say">
+              <span class="step">Step 4</span>
+              <h3>Look back over your practice.</h3>
+              <p>Sessions keep every swing, so you can look back over your tempo from one practice to the next.</p>
+            </div>
+          </div>
+          <div class="slide wide" role="group" aria-roledescription="slide" aria-label="6 of 6">
+            <ul class="ways">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M9 7l1.5-3h3L15 7"/></svg><div><strong>Film a swing</strong><span>In Stuckit or from your camera roll, from in front or behind.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg><div><strong>Tag your misses</strong><span>Mark what the ball did.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><div><strong>One fix</strong><span>Your coach finds the one move your misses do differently from your good swings.</span></div></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><div><strong>Stays on your phone</strong><span>Your video is read on your iPhone and never uploaded.</span></div></li>
+            </ul>
+            <div class="say">
+              <span class="step">Coming soon</span>
+              <h3>Your personal coach for your swing.</h3>
+              <p>One fix to make, not a breakdown of your whole swing. Coming after the launch. Join the waitlist to hear first.</p>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="nav">
+          <button class="arrow" id="prev" type="button" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <div class="dots" id="dots">
+            <button type="button" aria-label="What is Stuckit?"></button><button type="button" aria-label="Step 1"></button><button type="button" aria-label="Step 2"></button><button type="button" aria-label="Step 3"></button><button type="button" aria-label="Step 4"></button><button type="button" aria-label="Coming soon"></button>
+          </div>
+          <button class="arrow" id="next" type="button" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer class="card">
+  <span>Stuckit &copy; 2026 · Datum Intelligence LLC</span>
+  <nav aria-label="Policies"><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms</a><a href="support.html">Support</a><a href="mailto:support@stuckit.golf">Contact</a></nav>
+</footer>
+
+<dialog class="viewer" id="viewer" aria-label="Screenshot">
+  <button class="viewer-x" id="viewer-x" type="button" aria-label="Close screenshot">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <img id="viewer-img" alt="">
+</dialog>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  function cubic(x1, y1, x2, y2) {
+    function b(t, a, c) { return 3 * (1 - t) * (1 - t) * t * a + 3 * (1 - t) * t * t * c + t * t * t; }
+    return function (x) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      var lo = 0, hi = 1, t = x;
+      for (var i = 0; i < 30; i++) {
+        var v = b(t, x1, x2);
+        if (Math.abs(v - x) < 1e-6) break;
+        if (v < x) lo = t; else hi = t;
+        t = (lo + hi) / 2;
+      }
+      return b(t, y1, y2);
+    };
+  }
+  var easeInOut = cubic(0.42, 0, 0.58, 1), easeIn = cubic(0.42, 0, 1, 1), easeOut = cubic(0, 0, 0.58, 1);
+  var glide = cubic(0.5, 0, 0.15, 1);
+  function clamp(v) { return Math.min(Math.max(v, 0), 1); }
+  function seg(t, start, dur, ease) { return ease(clamp((t - start) / dur)); }
+
+  var T = { green: [0, 0.9], flag: [0.75, 0.55], ball: 1.25, letters: 1.47, letterDur: 0.5, stagger: 0.05, lift: 30 };
+  var settled = T.letters + 6 * T.stagger + T.letterDur; // 2.27 s, as in the app
+  var dockAt = settled - 0.05, dockDur = 0.95;
+  function ball(t) {
+    var sx = -150, sy = -170, lx = -40, hopTo = -14, hopH = 24, inT = 0.28, hopT = 0.16, rollT = 0.30;
+    if (t < inT) { var e = easeIn(Math.max(0, t / inT)); return [sx + (lx - sx) * e, sy * (1 - e)]; }
+    if (t < inT + hopT) { var p = (t - inT) / hopT; return [lx + (hopTo - lx) * easeOut(p), -hopH * 4 * p * (1 - p)]; }
+    var r = clamp((t - inT - hopT) / rollT);
+    return [hopTo * (1 - easeOut(r)), 0];
+  }
+
+  function reveal() {
+    root.classList.remove('pre');
+    window.dispatchEvent(new Event('stuckit:shown'));
+    var els = document.querySelectorAll('main, footer');
+    if (!Element.prototype.animate) return;
+    els.forEach(function (el, i) {
+      try { el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+        { duration: 700, delay: i * 80, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', fill: 'backwards' }); } catch (e) {}
+    });
+  }
+
+  function intro(layer) {
+    window.__introRunning = true;
+    var q = function (s) { return layer.querySelector(s); };
+    var green = q('.i-green'), flag = q('.i-flag'), ballEl = q('.i-ball'), logo = q('.intro-logo'), bg = q('.intro-bg');
+    var letters = [].slice.call(layer.querySelectorAll('.i-ltr'));
+    var lg = document.getElementById('green').getTotalLength() || 2600;
+    var lf = document.getElementById('flag').getTotalLength() || 1200;
+    green.style.strokeDasharray = lg; flag.style.strokeDasharray = lf;
+
+    var finished = false, start = null, dock = null, revealed = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      window.__introDone = true;
+      layer.remove();
+      root.classList.remove('intro');
+      try { sessionStorage.setItem('stuckit-intro', '1'); } catch (e) {}
+      if (!revealed) reveal();
+    }
+    function skip() { if (start !== null) start = Math.min(start, performance.now() - dockAt * 1000); }
+    layer.addEventListener('click', skip);
+    window.addEventListener('keydown', function (e) { if (e.key !== 'Tab') skip(); });
+
+    function draw(t) {
+      green.style.strokeDashoffset = lg * (1 - seg(t, T.green[0], T.green[1], easeInOut));
+      flag.style.strokeDashoffset = lf * (1 - seg(t, T.flag[0], T.flag[1], easeInOut));
+      var b = ball(t - T.ball);
+      ballEl.style.opacity = clamp((t - T.ball) / 0.15);
+      ballEl.setAttribute('transform', 'translate(' + b[0].toFixed(2) + ' ' + b[1].toFixed(2) + ')');
+      letters.forEach(function (l, i) {
+        var p = seg(t, T.letters + i * T.stagger, T.letterDur, easeOut);
+        l.style.opacity = p;
+        l.setAttribute('transform', 'translate(0 ' + ((1 - p) * T.lift).toFixed(2) + ')');
+      });
+    }
+
+    function frame(now) {
+      if (finished) return;
+      if (start === null) start = now;
+      var t = (now - start) / 1000;
+      draw(Math.min(t, settled));
+      if (t >= dockAt) {
+        if (!dock) {
+          var from = logo.getBoundingClientRect(), to = document.getElementById('brand-logo').getBoundingClientRect();
+          dock = { dx: to.left - from.left, dy: to.top - from.top, s: to.width / from.width };
+        }
+        var d = glide(clamp((t - dockAt) / dockDur));
+        logo.style.transform = 'translate3d(' + (dock.dx * d).toFixed(2) + 'px,' + (dock.dy * d).toFixed(2) + 'px,0) scale(' + (1 + (dock.s - 1) * d).toFixed(4) + ')';
+        var lift = clamp((t - dockAt - 0.3) / 0.55);
+        bg.style.opacity = 1 - lift;
+        if (lift > 0 && !revealed) { revealed = true; reveal(); }
+        if (t - dockAt >= dockDur) { finish(); return; }
+      }
+      requestAnimationFrame(frame);
+    }
+    draw(0);
+    requestAnimationFrame(frame);
+  }
+
+  var layer = document.getElementById('intro');
+  if (!window.__shown && root.classList.contains('pre')) {
+    if (layer && root.classList.contains('intro')) {
+      try { intro(layer); } catch (e) { window.__introDone = true; layer.remove(); root.classList.remove('intro'); reveal(); }
+    } else reveal();
+  }
+})();
+</script>
+
+<script>
+(function () {
+  var hero = document.getElementById('beta'), deepOn = null, deepQueued = false;
+  function depth() {
+    deepQueued = false;
+    var on = hero.getBoundingClientRect().bottom < window.innerHeight * 0.5;
+    if (on !== deepOn) { deepOn = on; document.documentElement.classList.toggle('deep', on); }
+  }
+  function queueDepth() { if (!deepQueued) { deepQueued = true; window.requestAnimationFrame(depth); } }
+  if (hero) {
+    window.addEventListener('scroll', queueDepth, { passive: true });
+    window.addEventListener('resize', queueDepth);
+    window.addEventListener('pageshow', depth);
+    depth();
+  }
+  document.getElementById('banner-x').addEventListener('click', function () {
+    document.documentElement.classList.add('no-banner');
+    try { localStorage.setItem('stuckit-banner', 'closed'); } catch (e) {}
+  });
+  var track = document.getElementById('track'), rail = document.getElementById('rail'),
+      prev = document.getElementById('prev'), next = document.getElementById('next'),
+      dots = document.querySelectorAll('#dots button'), slides = rail.querySelectorAll('.slide'),
+      count = slides.length, at = 0;
+  function fit() {
+    var h = slides[at].offsetHeight;
+    if (h) track.style.height = h + 'px';
+  }
+  function show(i) {
+    at = Math.max(0, Math.min(count - 1, i));
+    rail.style.transform = 'translateX(' + (-100 * at) + '%)';
+    slides.forEach(function (s, k) { s.inert = k !== at; s.setAttribute('aria-hidden', k === at ? 'false' : 'true'); });
+    dots.forEach(function (d, k) { d.setAttribute('aria-current', k === at ? 'true' : 'false'); });
+    prev.disabled = at === 0; next.disabled = at === count - 1;
+    fit();
+  }
+  prev.addEventListener('click', function () { show(at - 1); });
+  next.addEventListener('click', function () { show(at + 1); });
+  dots.forEach(function (d, k) { d.addEventListener('click', function () { show(k); }); });
+  track.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(at + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(at - 1); }
+  });
+
+  var x0 = 0, y0 = 0, t0 = 0, dx = 0, id = null, dragging = false, draggedUntil = 0;
+  track.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY; t0 = Date.now(); dx = 0; dragging = false;
+  });
+  track.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== id) return;
+    dx = e.clientX - x0;
+    var dy = e.clientY - y0;
+    if (!dragging) {
+      if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return;
+      dragging = true; rail.classList.add('dragging');
+      try { track.setPointerCapture(id); } catch (err) {}
+    }
+    var edge = (at === 0 && dx > 0) || (at === count - 1 && dx < 0);
+    rail.style.transform = 'translateX(calc(' + (-100 * at) + '% + ' + (edge ? dx / 3 : dx) + 'px))';
+  });
+  function release(e) {
+    if (e.pointerId !== id) return;
+    id = null;
+    if (!dragging) return;
+    dragging = false; draggedUntil = Date.now() + 400; rail.classList.remove('dragging');
+    var w = track.clientWidth, fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > 0.35;
+    if ((Math.abs(dx) > w * 0.2 || (fast && Math.abs(dx) > 24)) && dx !== 0) { show(at + (dx < 0 ? 1 : -1)); } else { show(at); }
+  }
+  track.addEventListener('pointerup', release);
+  track.addEventListener('pointercancel', release);
+  track.addEventListener('click', function (e) { if (Date.now() < draggedUntil) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+  window.addEventListener('resize', fit);
+  rail.querySelectorAll('img').forEach(function (im) { im.addEventListener('load', fit); });
+  document.getElementById('demo-box').addEventListener('toggle', fit);
+
+  var viewer = document.getElementById('viewer'), viewerImg = document.getElementById('viewer-img');
+  track.querySelectorAll('.shot').forEach(function (b) {
+    b.addEventListener('click', function () {
+      viewerImg.src = b.getAttribute('data-full');
+      viewerImg.alt = b.querySelector('img').alt;
+      document.documentElement.classList.add('viewing');
+      if (viewer.showModal) { viewer.showModal(); } else { viewer.setAttribute('open', ''); }
+    });
+  });
+  function closeViewer() { if (viewer.close) { viewer.close(); } else { viewer.removeAttribute('open'); document.documentElement.classList.remove('viewing'); } }
+  document.getElementById('viewer-x').addEventListener('click', closeViewer);
+  viewer.addEventListener('click', function (e) { if (e.target === viewer) closeViewer(); });
+  viewer.addEventListener('close', function () { document.documentElement.classList.remove('viewing'); });
+  show(0);
+})();
+</script>
+
+<script>
+(function () {
+  var root = document.documentElement, b = document.getElementById('theme');
+  function sync() {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#000000' : '#ffffff');
+  }
+  b.addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') !== 'dark';
+    if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+    try { localStorage.setItem('stuckit-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    sync();
+  });
+  sync();
+})();
+</script>
+
+<script>
+(function () {
+  var film = document.getElementById('film');
+  var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function play() { try { film.currentTime = 0; } catch (e) {} film.play().catch(function () {}); }
+
+  function keepPlaying() {
+    if (still || document.hidden || !film.paused) return;
+    if (document.documentElement.classList.contains('intro')) return;
+    film.play().catch(function () {});
+  }
+  document.addEventListener('visibilitychange', keepPlaying);
+  window.addEventListener('pageshow', keepPlaying);
+  film.addEventListener('pause', function () { setTimeout(keepPlaying, 400); });
+  film.addEventListener('stalled', function () { setTimeout(keepPlaying, 1000); });
+  ['pointerup', 'touchend'].forEach(function (ev) { window.addEventListener(ev, keepPlaying, { passive: true }); });
+  setInterval(keepPlaying, 3000);
+  if (!still) {
+    if (document.documentElement.classList.contains('intro')) window.addEventListener('stuckit:shown', play, { once: true });
+    else play();
+  }
+
+})();
+</script>
+
+<script>
+(function () {
+  var FORM = { action: 'https://docs.google.com/forms/d/e/1FAIpQLSfdR_bgm5HGrA3LZTePyww1RbaPbHTL-lc4SPpFuUxiHKcF1A/formResponse', email: 'entry.1771325640' };
+  var form = document.getElementById('beta-form');
+  var status = document.getElementById('beta-status');
+  var button = form.querySelector('button');
+  function celebrate(from) {
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var css = getComputedStyle(document.documentElement);
+    var ink = css.getPropertyValue('--ink').trim() || '#000', ground = css.getPropertyValue('--ground').trim() || '#fff';
+    var c = document.createElement('canvas'), dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50';
+    c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+    document.body.appendChild(c);
+    var g = c.getContext('2d'); g.scale(dpr, dpr);
+    var r = from.getBoundingClientRect(), x0 = r.left + r.width / 2, y0 = r.top + r.height / 2;
+    var bits = [];
+    for (var i = 0; i < 50; i++) {
+      var a = -Math.PI / 2 + (Math.random() - 0.5) * 1.9, v = 5 + Math.random() * 6;
+      bits.push({ x: x0, y: y0, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: 4 + Math.random() * 5,
+        rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, light: i % 2 === 0 });
+    }
+    var t0 = performance.now();
+    (function frame(now) {
+      var t = (now - t0) / 1400;
+      g.clearRect(0, 0, innerWidth, innerHeight);
+      if (t >= 1) { c.remove(); return; }
+      g.globalAlpha = t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3;
+      bits.forEach(function (b) {
+        b.vy += 0.28; b.vx *= 0.985; b.x += b.vx; b.y += b.vy; b.rot += b.vr;
+        g.save(); g.translate(b.x, b.y); g.rotate(b.rot);
+        g.fillStyle = b.light ? ground : ink; g.fillRect(-b.s / 2, -b.s / 4, b.s, b.s / 2);
+        if (b.light) { g.strokeStyle = ink; g.lineWidth = 1; g.strokeRect(-b.s / 2, -b.s / 4, b.s, b.s / 2); }
+        g.restore();
+      });
+      requestAnimationFrame(frame);
+    })(t0);
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = form.email.value.trim();
+    if (!email || !form.email.checkValidity()) { status.textContent = 'Enter a valid email.'; form.email.focus(); return; }
+    var done = "You're on the list.";
+    if (form.website.value) { status.textContent = done; return; }
+    var data = new URLSearchParams();
+    data.append(FORM.email, email);
+    button.disabled = true;
+    status.textContent = 'Sending…';
+    fetch(FORM.action, { method: 'POST', mode: 'no-cors', body: data })
+      .then(function () { status.textContent = 'Successfully signed up. ' + done; form.reset(); celebrate(button); })
+      .catch(function () {
+        status.innerHTML = 'That didn’t go through. Email <a href="mailto:support@stuckit.golf?subject=Stuckit%20waitlist">support@stuckit.golf</a> and we’ll add you.';
+      })
+      .finally(function () { button.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
